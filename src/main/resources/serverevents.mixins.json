@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "icu.suc.mc.serverevents.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MixinPlayerList"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

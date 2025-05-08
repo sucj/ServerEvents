@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "serverevents",
+  "version": "${version}",
+  "name": "ServerEvents",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "icu.suc.mc.serverevents.ServerEvents"
+    ]
+  },
+  "mixins": [
+    "serverevents.mixins.json",
+    {
+      "config": "serverevents.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
