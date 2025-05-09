@@ -4,7 +4,9 @@
   "package": "icu.suc.mc.serverevents.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "MixinPlayerList"
+    "MixinPlayerList",
+    "MixinServerCommonPacketListenerImpl",
+    "MixinServerGamePacketListenerImpl"
   ],
   "injectors": {
     "defaultRequire": 1

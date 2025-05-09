@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerList.class)
-public class MixinPlayerList {
+public abstract class MixinPlayerList {
 
     @Unique
     private static final ThreadLocal<ServerPlayer> currentServerPlayer = new ThreadLocal<>();
@@ -33,12 +32,8 @@ public class MixinPlayerList {
             return component;
         }
 
-        var message = new MutableObject<>(component);
-
-        ServerEvents.Player.JOIN.invoker().onJoin(player, message);
-
         currentServerPlayer.remove();
 
-        return message.getValue();
+        return ServerEvents.Player.MODIFY_JOIN_MESSAGE.invoker().modifyJoinMessage(player, component);
     }
 }
