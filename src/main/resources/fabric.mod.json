@@ -8,18 +8,14 @@
   "contact": {},
   "license": "GPL-3.0",
   "icon": "icon.png",
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
     "main": [
       "icu.suc.mc.serverevents.ServerEvents"
     ]
   },
   "mixins": [
-    "serverevents.mixins.json",
-    {
-      "config": "serverevents.client.mixins.json",
-      "environment": "client"
-    }
+    "serverevents.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
