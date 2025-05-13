@@ -22,8 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ServerEvents implements ModInitializer {
     @Override
-    public void onInitialize() {
-    }
+    public void onInitialize() {}
 
     public static abstract class Player {
         /**
