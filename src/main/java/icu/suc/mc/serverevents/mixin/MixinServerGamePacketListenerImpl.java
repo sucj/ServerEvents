@@ -11,11 +11,10 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class MixinServerGamePacketListenerImpl {
-
     @Shadow public ServerPlayer player;
 
     @ModifyArg(method = "removePlayerFromWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"), index = 0)
-    private Component callPlayerLeaveEvent(Component component) {
+    private Component Player$MODIFY_LEAVE_MESSAGE(Component component) {
         return ServerEvents.Player.MODIFY_LEAVE_MESSAGE.invoker().modifyLeaveMessage(player, component);
     }
 }

@@ -16,11 +16,14 @@ import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class ServerEvents implements ModInitializer {
-
     @Override
-    public void onInitialize() {}
+    public void onInitialize() {
+    }
 
     public static abstract class Player {
         /**
@@ -62,7 +65,7 @@ public final class ServerEvents implements ModInitializer {
              * @param message the join message
              * @return the new join message
              */
-            Component modifyJoinMessage(ServerPlayer player, Component message);
+            Component modifyJoinMessage(@NotNull ServerPlayer player, @Nullable Component message);
         }
 
         @FunctionalInterface
@@ -74,7 +77,7 @@ public final class ServerEvents implements ModInitializer {
              * @param message the leave message
              * @return the new leave message
              */
-            Component modifyLeaveMessage(ServerPlayer player, Component message);
+            Component modifyLeaveMessage(@NotNull ServerPlayer player, @Nullable Component message);
         }
 
         public static abstract class Kick {
@@ -109,7 +112,7 @@ public final class ServerEvents implements ModInitializer {
                  * @param reason the kick reason
                  * @return {@code true} if the player should be kicked, otherwise {@code false}
                  */
-                boolean allowKick(ServerPlayer player, Component reason);
+                boolean allowKick(@NotNull ServerPlayer player, @Nullable Component reason);
             }
 
             @FunctionalInterface
@@ -121,7 +124,7 @@ public final class ServerEvents implements ModInitializer {
                  * @param reason the kick reason
                  * @return the new kick reason
                  */
-                Component modifyKickReason(ServerPlayer player, Component reason);
+                Component modifyKickReason(@NotNull ServerPlayer player, @Nullable Component reason);
             }
         }
 
@@ -286,6 +289,83 @@ public final class ServerEvents implements ModInitializer {
              * @see ServerLivingEntityEvents#AFTER_DEATH
              */
             @FabricAPI public static final Event<ServerLivingEntityEvents.AfterDeath> AFTER = ServerLivingEntityEvents.AFTER_DEATH;
+        }
+
+        public static abstract class Effect {
+
+            /**
+             * An event that determines whether an effect should be applied to an entity.
+             */
+            public static final Event<ServerEvents.LivingEntity.Effect.Add> ADD = EventFactory.createArrayBacked(ServerEvents.LivingEntity.Effect.Add.class, callbacks -> (affectedEntity, effect, sourceEntity) -> {
+                for (ServerEvents.LivingEntity.Effect.Add callback : callbacks) {
+                    if (!callback.addEffect(affectedEntity, effect, sourceEntity)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            /**
+             * An event that allows modification of whether a new effect should override an existing effect.
+             */
+            public static final Event<ServerEvents.LivingEntity.Effect.Override> OVERRIDE = EventFactory.createArrayBacked(ServerEvents.LivingEntity.Effect.Override.class, callbacks -> (affectedEntity, oldEffect, newEffect, sourceEntity, override) -> {
+                for (ServerEvents.LivingEntity.Effect.Override callback : callbacks) {
+                    override = callback.overrideEffect(affectedEntity, oldEffect, newEffect, sourceEntity, override);
+                }
+                return override;
+            });
+
+            /**
+             * An event that determines whether an effect should be removed from an entity.
+             */
+            public static final Event<ServerEvents.LivingEntity.Effect.Remove> REMOVE = EventFactory.createArrayBacked(ServerEvents.LivingEntity.Effect.Remove.class, callbacks -> (entity, effect) -> {
+                for (ServerEvents.LivingEntity.Effect.Remove callback : callbacks) {
+                    if (!callback.removeEffect(entity, effect)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            @FunctionalInterface
+            public interface Add {
+                /**
+                 * Called when an effect is about to be applied to an entity.
+                 *
+                 * @param affectedEntity the entity to which the effect will be applied
+                 * @param effect the effect instance to be applied, or {@code null} if no effect is specified
+                 * @param sourceEntity the entity causing the effect, or {@code null} if no source is specified
+                 * @return {@code true} if the effect should be applied, otherwise {@code false}
+                 */
+                boolean addEffect(@NotNull net.minecraft.world.entity.LivingEntity affectedEntity, @Nullable MobEffectInstance effect, @Nullable net.minecraft.world.entity.Entity sourceEntity);
+            }
+
+            @FunctionalInterface
+            public interface Override {
+                /**
+                 * Called to determine whether a new effect should override an existing effect.
+                 *
+                 * @param affectedEntity the entity with the existing effect
+                 * @param oldEffect the current effect instance, or {@code null} if no effect exists
+                 * @param newEffect the new effect instance to apply, or {@code null} if no new effect is specified
+                 * @param sourceEntity the entity causing the effect, or {@code null} if no source is specified
+                 * @param override whether the effect should be overridden
+                 * @return {@code true} if the effect should be overridden, otherwise {@code false}
+                 */
+                boolean overrideEffect(@NotNull net.minecraft.world.entity.LivingEntity affectedEntity, @Nullable MobEffectInstance oldEffect, @Nullable MobEffectInstance newEffect, @Nullable net.minecraft.world.entity.Entity sourceEntity, boolean override);
+            }
+
+            @FunctionalInterface
+            public interface Remove {
+                /**
+                 * Called when an effect is about to be removed from an entity.
+                 *
+                 * @param entity the entity from which the effect will be removed
+                 * @param effect the effect instance to be removed, or {@code null} if no effect is specified
+                 * @return {@code true} if the effect should be removed, otherwise {@code false}
+                 */
+                boolean removeEffect(@NotNull net.minecraft.world.entity.LivingEntity entity, @Nullable MobEffectInstance effect);
+            }
         }
     }
 

@@ -15,25 +15,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerList.class)
 public abstract class MixinPlayerList {
-
     @Unique
-    private static final ThreadLocal<ServerPlayer> currentServerPlayer = new ThreadLocal<>();
+    private ServerPlayer serverPlayer;
 
     @Inject(method = "placeNewPlayer", at = @At("HEAD"))
-    private void callPlayerJoinEvent(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
-        currentServerPlayer.set(serverPlayer);
+    private void Player$MODIFY_JOIN_MESSAGE(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
+        this.serverPlayer = serverPlayer;
     }
 
     @ModifyArg(method = "placeNewPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"), index = 0)
-    private Component callPlayerJoinEvent(Component component) {
-        var player = currentServerPlayer.get();
-
-        if (player == null) {
-            return component;
+    private Component Player$MODIFY_JOIN_MESSAGE(Component component) {
+        try {
+            return ServerEvents.Player.MODIFY_JOIN_MESSAGE.invoker().modifyJoinMessage(serverPlayer, component);
+        } finally {
+            serverPlayer = null;
         }
-
-        currentServerPlayer.remove();
-
-        return ServerEvents.Player.MODIFY_JOIN_MESSAGE.invoker().modifyJoinMessage(player, component);
     }
 }

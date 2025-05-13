@@ -15,11 +15,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
 public abstract class MixinServerCommonPacketListenerImpl {
-
     @Shadow @Final protected MinecraftServer server;
 
     @Inject(method = "disconnect(Lnet/minecraft/network/chat/Component;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerCommonPacketListenerImpl;disconnect(Lnet/minecraft/network/DisconnectionDetails;)V"), cancellable = true)
-    private void callPlayerKickEvent(Component component, CallbackInfo ci) {
+    private void Player$Kick$ALLOW(Component component, CallbackInfo ci) {
         if (server.isRunning()) {
             if ((Object) this instanceof ServerGamePacketListenerImpl serverGamePacketListener) {
                 if (ServerEvents.Player.Kick.ALLOW.invoker().allowKick(serverGamePacketListener.player, component)) {
@@ -31,7 +30,7 @@ public abstract class MixinServerCommonPacketListenerImpl {
     }
 
     @ModifyArg(method = "disconnect(Lnet/minecraft/network/chat/Component;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/DisconnectionDetails;<init>(Lnet/minecraft/network/chat/Component;)V"), index = 0)
-    private Component callPlayerKickEvent(Component component) {
+    private Component Player$Kick$MODIFY_REASON(Component component) {
         if ((Object) this instanceof ServerGamePacketListenerImpl serverGamePacketListener) {
             return ServerEvents.Player.Kick.MODIFY_REASON.invoker().modifyKickReason(serverGamePacketListener.player, component);
         }
