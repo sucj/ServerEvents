@@ -1,6 +1,7 @@
 jdk:
   - openjdk21
 before_install:
+  - chmod +x gradlew  # 确保 gradlew 可执行
   - ./gradlew clean
 install:
-  - ./gradlew build --stacktrace --info --no-daemon
+  - ./gradlew build publish --stacktrace --info --no-daemon
