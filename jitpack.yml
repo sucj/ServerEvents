@@ -1,0 +1,6 @@
+jdk:
+  - openjdk21
+before_install:
+  - ./gradlew clean
+install:
+  - ./gradlew build --stacktrace --info --no-daemon
