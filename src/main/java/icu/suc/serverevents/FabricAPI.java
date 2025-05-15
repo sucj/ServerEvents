@@ -1,4 +1,4 @@
-package icu.suc.mc.serverevents;
+package icu.suc.serverevents;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

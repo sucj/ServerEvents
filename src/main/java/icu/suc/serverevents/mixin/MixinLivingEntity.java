@@ -1,4 +1,4 @@
-package icu.suc.mc.serverevents.mixin;
+package icu.suc.serverevents.mixin;
 
 import icu.suc.mc.serverevents.ServerEvents;
 import net.minecraft.core.Holder;

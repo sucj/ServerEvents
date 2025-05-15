@@ -1,4 +1,4 @@
-package icu.suc.mc.serverevents;
+package icu.suc.serverevents;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.*;
