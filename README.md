@@ -3,7 +3,7 @@
 **ServerEvents** is a support library for Fabric server development, designed to enhance the Fabric API's limited event system. It offers a Bukkit-like event framework while adhering to Fabric's minimalist philosophy. The mod encapsulates most Fabric API events (excluding `CommandRegistrationCallback` and `DynamicRegistrySetupCallback`) and introduces additional server-side events for greater flexibility.
 
 ## Installation
-1. Look at [jitpack.io](https://jitpack.io/#sucj/serverevents) for more information.
+1. Look at [jitpack.io](https://jitpack.io/#icu.suc/serverevents) for more information.
 2. Add `serverevents` to your mod depends.
 
 ## Usage
