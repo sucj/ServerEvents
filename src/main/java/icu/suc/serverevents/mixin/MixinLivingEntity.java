@@ -1,6 +1,6 @@
 package icu.suc.serverevents.mixin;
 
-import icu.suc.mc.serverevents.ServerEvents;
+import icu.suc.serverevents.ServerEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;

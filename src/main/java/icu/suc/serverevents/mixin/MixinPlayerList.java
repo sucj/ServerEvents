@@ -1,6 +1,6 @@
 package icu.suc.serverevents.mixin;
 
-import icu.suc.mc.serverevents.ServerEvents;
+import icu.suc.serverevents.ServerEvents;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
