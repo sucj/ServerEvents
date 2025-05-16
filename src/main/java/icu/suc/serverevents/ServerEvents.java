@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2025 sucj
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package icu.suc.serverevents;
 
 import net.fabricmc.api.ModInitializer;
@@ -264,6 +287,9 @@ public final class ServerEvents implements ModInitializer {
         }
 
         public static abstract class Receive {
+            /**
+             * An event that can be used to modify the packet being received.
+             */
             public static final Event<ServerEvents.Connection.Receive.Modify> MODIFY = EventFactory.createArrayBacked(ServerEvents.Connection.Receive.Modify.class, callbacks -> (packetListener, packet) -> {
                 for (ServerEvents.Connection.Receive.Modify callback : callbacks) {
                     packet = callback.modifyReceive(packetListener, packet);
@@ -271,6 +297,9 @@ public final class ServerEvents implements ModInitializer {
                 return packet;
             });
 
+            /**
+             * An event that determines whether a packet should be received.
+             */
             public static final Event<ServerEvents.Connection.Receive.Allow> ALLOW = EventFactory.createArrayBacked(ServerEvents.Connection.Receive.Allow.class, callbacks -> (packetListener, packet) -> {
                 for (ServerEvents.Connection.Receive.Allow callback : callbacks) {
                     if (!callback.allowReceive(packetListener, packet)) {
@@ -282,16 +311,33 @@ public final class ServerEvents implements ModInitializer {
 
             @FunctionalInterface
             public interface Modify {
+                /**
+                 * Modifies or provides a packet for receiving.
+                 *
+                 * @param packetListener the packet listener
+                 * @param packet the packet being received
+                 * @return the modified packet
+                 */
                 @NotNull Packet<?> modifyReceive(@NotNull PacketListener packetListener, @NotNull Packet<?> packet);
             }
 
             @FunctionalInterface
             public interface Allow {
+                /**
+                 * Called when the server receives a packet.
+                 *
+                 * @param packetListener the packet listener
+                 * @param packet the packet being received
+                 * @return {@code true} if the packet should be received, otherwise {@code false}
+                 */
                 boolean allowReceive(@NotNull PacketListener packetListener, @NotNull Packet<?> packet);
             }
         }
 
         public static abstract class Send {
+            /**
+             * An event that can be used to modify the packet being sent.
+             */
             public static final Event<ServerEvents.Connection.Send.Modify> MODIFY = EventFactory.createArrayBacked(ServerEvents.Connection.Send.Modify.class, callbacks -> (packetListener, packet) -> {
                 for (ServerEvents.Connection.Send.Modify callback : callbacks) {
                     packet = callback.modifySend(packetListener, packet);
@@ -299,6 +345,9 @@ public final class ServerEvents implements ModInitializer {
                 return packet;
             });
 
+            /**
+             * An event that determines whether a packet should be sent.
+             */
             public static final Event<ServerEvents.Connection.Send.Allow> ALLOW = EventFactory.createArrayBacked(ServerEvents.Connection.Send.Allow.class, callbacks -> (packetListener, packet) -> {
                 for (ServerEvents.Connection.Send.Allow callback : callbacks) {
                     if (!callback.allowSend(packetListener, packet)) {
@@ -310,11 +359,25 @@ public final class ServerEvents implements ModInitializer {
 
             @FunctionalInterface
             public interface Modify {
+                /**
+                 * Modifies or provides a packet for sending.
+                 *
+                 * @param packetListener the packet listener may be {@code null}
+                 * @param packet the packet being sent
+                 * @return the modified packet
+                 */
                 @NotNull Packet<?> modifySend(@Nullable PacketListener packetListener, @NotNull Packet<?> packet);
             }
 
             @FunctionalInterface
             public interface Allow {
+                /**
+                 * Called when a packet is sent by the server.
+                 *
+                 * @param packetListener the packet listener may be {@code null}
+                 * @param packet the packet being sent
+                 * @return {@code true} if the packet should be sent, otherwise {@code false}
+                 */
                 boolean allowSend(@Nullable PacketListener packetListener, @NotNull Packet<?> packet);
             }
         }
