@@ -34,11 +34,11 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
@@ -75,13 +75,9 @@ public abstract class MixinLivingEntity {
         }
     }
 
-    /**
-     * @author 557
-     * @reason LivingEntity$Effect$REMOVE
-     */
     @SuppressWarnings({"DataFlowIssue"})
-    @Overwrite
-    protected void triggerOnDeathMobEffects(ServerLevel serverLevel, Entity.RemovalReason removalReason) {
+    @Inject(method = "triggerOnDeathMobEffects", at = @At("HEAD"), cancellable = true)
+    private void LivingEntity$Effect$REMOVE(ServerLevel serverLevel, Entity.RemovalReason removalReason, CallbackInfo ci) {
         var iterator = this.activeEffects.entrySet().iterator();
         while (iterator.hasNext()) {
             var effect = iterator.next().getValue();
@@ -90,6 +86,7 @@ public abstract class MixinLivingEntity {
                 iterator.remove();
             }
         }
+        ci.cancel();
     }
 
     @Inject(method = "removeAllEffects", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Maps;newHashMap(Ljava/util/Map;)Ljava/util/HashMap;"), cancellable = true)
