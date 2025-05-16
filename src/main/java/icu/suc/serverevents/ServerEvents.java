@@ -48,20 +48,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ServerEvents implements ModInitializer {
     @Override
-    public void onInitialize() {
-        Player.Interact.Use.BLOCK.register((player, world, hand, hitResult) -> {
-            System.out.println("BLOCK");
-            return InteractionResult.PASS;
-        });
-        Player.Interact.Use.ENTITY.register((player, world, hand, entity, hitResult) -> {
-            System.out.println("ENTITY");
-            return InteractionResult.PASS;
-        });
-        Player.Interact.Use.ITEM.register((player, world, hand) -> {
-            System.out.println("ITEM");
-            return InteractionResult.PASS;
-        });
-    }
+    public void onInitialize() {}
 
     public static abstract class Player {
         /**
