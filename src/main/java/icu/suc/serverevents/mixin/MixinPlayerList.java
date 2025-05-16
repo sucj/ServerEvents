@@ -23,34 +23,28 @@
  */
 package icu.suc.serverevents.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import icu.suc.serverevents.ServerEvents;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(PlayerList.class)
 public abstract class MixinPlayerList {
-    @Unique private ServerPlayer serverPlayer;
-
-    @Inject(method = "placeNewPlayer", at = @At("HEAD"))
-    private void Player$MODIFY_JOIN_MESSAGE(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
-        this.serverPlayer = serverPlayer;
+    @ModifyArg(method = "placeNewPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"), index = 0)
+    private @NotNull Component Player$Join$MODIFY_MESSAGE(Component component, @Local(argsOnly = true) ServerPlayer serverPlayer) {
+        return ServerEvents.Player.Join.MODIFY_MESSAGE.invoker().modifyJoinMessage(serverPlayer, component);
     }
 
-    @ModifyArg(method = "placeNewPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"), index = 0)
-    private Component Player$MODIFY_JOIN_MESSAGE(Component component) {
-        try {
-            return ServerEvents.Player.MODIFY_JOIN_MESSAGE.invoker().modifyJoinMessage(serverPlayer, component);
-        } finally {
-            serverPlayer = null;
+    @Redirect(method = "placeNewPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"))
+    private void Player$Join$ALLOW_MESSAGE(PlayerList instance, Component component, boolean bl, @Local(argsOnly = true) ServerPlayer serverPlayer) {
+        if (ServerEvents.Player.Join.ALLOW_MESSAGE.invoker().allowJoinMessage(serverPlayer, component)) {
+            instance.broadcastSystemMessage(component, bl);
         }
     }
 }

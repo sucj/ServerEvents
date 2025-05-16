@@ -59,10 +59,14 @@ public final class ServerEvents implements ModInitializer {
          * @see ServerPlayerEvents#AFTER_RESPAWN
          */
         @FabricAPI public static final Event<ServerPlayerEvents.AfterRespawn> AFTER_RESPAWN = ServerPlayerEvents.AFTER_RESPAWN;
-        
+
         /**
          * An event that can be used to provide the player's join message.
+         *
+         * @deprecated Moved to {@link ServerEvents.Player.Join#MODIFY_MESSAGE}.
+         * @since 1.0.5
          */
+        @Deprecated
         public static final Event<ServerEvents.Player.ModifyJoinMessage> MODIFY_JOIN_MESSAGE = EventFactory.createArrayBacked(ServerEvents.Player.ModifyJoinMessage.class, callbacks -> (player, message) -> {
             for (ServerEvents.Player.ModifyJoinMessage callback : callbacks) {
                 message = callback.modifyJoinMessage(player, message);
@@ -72,7 +76,11 @@ public final class ServerEvents implements ModInitializer {
 
         /**
          * An event that can be used to provide the player's leave message.
+         *
+         * @deprecated Moved to {@link ServerEvents.Player.Leave#MODIFY_MESSAGE}.
+         * @since 1.0.5
          */
+        @Deprecated
         public static final Event<ServerEvents.Player.ModifyLeaveMessage> MODIFY_LEAVE_MESSAGE = EventFactory.createArrayBacked(ServerEvents.Player.ModifyLeaveMessage.class, callbacks -> (player, message) -> {
             for (ServerEvents.Player.ModifyLeaveMessage callback : callbacks) {
                 message = callback.modifyLeaveMessage(player, message);
@@ -80,6 +88,11 @@ public final class ServerEvents implements ModInitializer {
             return message;
         });
 
+        /**
+         * @deprecated Moved to {@link ServerEvents.Player.Join.ModifyMessage}.
+         * @since 1.0.5
+         */
+        @Deprecated
         @FunctionalInterface
         public interface ModifyJoinMessage {
             /**
@@ -92,6 +105,11 @@ public final class ServerEvents implements ModInitializer {
             @NotNull Component modifyJoinMessage(@NotNull ServerPlayer player, @NotNull Component message);
         }
 
+        /**
+         * @deprecated Moved to {@link ServerEvents.Player.Leave.ModifyMessage}.
+         * @since 1.0.5
+         */
+        @Deprecated
         @FunctionalInterface
         public interface ModifyLeaveMessage {
             /**
@@ -102,6 +120,102 @@ public final class ServerEvents implements ModInitializer {
              * @return the new leave message
              */
             @NotNull Component modifyLeaveMessage(@NotNull ServerPlayer player, @NotNull Component message);
+        }
+
+        public static abstract class Join {
+            /**
+             * An event that can be used to provide the player's join message.
+             */
+            public static final Event<ServerEvents.Player.Join.ModifyMessage> MODIFY_MESSAGE = EventFactory.createArrayBacked(ServerEvents.Player.Join.ModifyMessage.class, callbacks -> (player, message) -> {
+                for (ServerEvents.Player.Join.ModifyMessage callback : callbacks) {
+                    message = callback.modifyJoinMessage(player, message);
+                }
+                return message;
+            });
+
+            /**
+             * An event that allows broadcast the player's join message.
+             */
+            public static final Event<ServerEvents.Player.Join.AllowMessage> ALLOW_MESSAGE = EventFactory.createArrayBacked(ServerEvents.Player.Join.AllowMessage.class, callbacks -> (player, message) -> {
+                for (ServerEvents.Player.Join.AllowMessage callback : callbacks) {
+                    if (!callback.allowJoinMessage(player, message)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            @FunctionalInterface
+            public interface ModifyMessage {
+                /**
+                 * Modifies or provides a message for a player joined.
+                 *
+                 * @param player the player
+                 * @param message the join message
+                 * @return the new join message
+                 */
+                @NotNull Component modifyJoinMessage(@NotNull ServerPlayer player, @NotNull Component message);
+            }
+
+            @FunctionalInterface
+            public interface AllowMessage {
+                /**
+                 * Called when a player joins a server
+                 *
+                 * @param player the player
+                 * @param message the join reason
+                 * @return {@code true} if should broadcast the message, otherwise {@code false}
+                 */
+                boolean allowJoinMessage(@NotNull ServerPlayer player, @NotNull Component message);
+            }
+        }
+
+        public static abstract class Leave {
+            /**
+             * An event that can be used to provide the player's leave message.
+             */
+            public static final Event<ServerEvents.Player.Leave.ModifyMessage> MODIFY_MESSAGE = EventFactory.createArrayBacked(ServerEvents.Player.Leave.ModifyMessage.class, callbacks -> (player, message) -> {
+                for (ServerEvents.Player.Leave.ModifyMessage callback : callbacks) {
+                    message = callback.modifyLeaveMessage(player, message);
+                }
+                return message;
+            });
+
+            /**
+             * An event that allows broadcast the player's leave message.
+             */
+            public static final Event<ServerEvents.Player.Leave.AllowMessage> ALLOW_MESSAGE = EventFactory.createArrayBacked(ServerEvents.Player.Leave.AllowMessage.class, callbacks -> (player, message) -> {
+                for (ServerEvents.Player.Leave.AllowMessage callback : callbacks) {
+                    if (!callback.allowLeaveMessage(player, message)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            @FunctionalInterface
+            public interface ModifyMessage {
+                /**
+                 * Modifies or provides a message for a player left.
+                 *
+                 * @param player the player
+                 * @param message the leave message
+                 * @return the new leave message
+                 */
+                @NotNull Component modifyLeaveMessage(@NotNull ServerPlayer player, @NotNull Component message);
+            }
+
+            @FunctionalInterface
+            public interface AllowMessage {
+                /**
+                 * Called when a player left a server
+                 *
+                 * @param player the player
+                 * @param message the leave reason
+                 * @return {@code true} if should broadcast the message, otherwise {@code false}
+                 */
+                boolean allowLeaveMessage(@NotNull ServerPlayer player, @NotNull Component message);
+            }
         }
 
         public static abstract class Kick {
@@ -788,5 +902,10 @@ public final class ServerEvents implements ModInitializer {
          * @see LootTableEvents#ALL_LOADED
          */
         @FabricAPI public static final Event<LootTableEvents.Loaded> ALL_LOADED = LootTableEvents.ALL_LOADED;
+    }
+
+    static {
+        ServerEvents.Player.Join.MODIFY_MESSAGE.register((player, message) -> ServerEvents.Player.MODIFY_JOIN_MESSAGE.invoker().modifyJoinMessage(player, message));
+        ServerEvents.Player.Leave.MODIFY_MESSAGE.register((player, message) -> ServerEvents.Player.MODIFY_LEAVE_MESSAGE.invoker().modifyLeaveMessage(player, message));
     }
 }
