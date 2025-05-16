@@ -568,7 +568,7 @@ public final class ServerEvents implements ModInitializer {
                  * Called when an effect is about to be applied to an entity.
                  *
                  * @param affectedEntity the entity to which the effect will be applied
-                 * @param effect the effect instance to be applied.
+                 * @param effect the effect instance to be applied
                  * @param sourceEntity the entity causing the effect, or {@code null} if no source is specified
                  * @return {@code true} if the effect should be applied, otherwise {@code false}
                  */
@@ -581,8 +581,8 @@ public final class ServerEvents implements ModInitializer {
                  * Called to determine whether a new effect should override an existing effect.
                  *
                  * @param affectedEntity the entity with the existing effect
-                 * @param oldEffect the current effect instance.
-                 * @param newEffect the new effect instance to apply.
+                 * @param oldEffect the current effect instance
+                 * @param newEffect the new effect instance to apply
                  * @param sourceEntity the entity causing the effect, or {@code null} if no source is specified
                  * @param override whether the effect should be overridden
                  * @return {@code true} if the effect should be overridden, otherwise {@code false}
@@ -596,10 +596,10 @@ public final class ServerEvents implements ModInitializer {
                  * Called when an effect is about to be removed from an entity.
                  *
                  * @param entity the entity from which the effect will be removed
-                 * @param effect the effect instance to be removed.
+                 * @param effect the effect instance to be removed, or {@code null} if no effect is specified
                  * @return {@code true} if the effect should be removed, otherwise {@code false}
                  */
-                boolean removeEffect(@NotNull net.minecraft.world.entity.LivingEntity entity, @NotNull MobEffectInstance effect);
+                boolean removeEffect(@NotNull net.minecraft.world.entity.LivingEntity entity, @Nullable MobEffectInstance effect);
             }
         }
     }

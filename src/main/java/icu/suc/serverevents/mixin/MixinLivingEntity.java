@@ -27,10 +27,12 @@ import com.llamalad7.mixinextras.sugar.Local;
 import icu.suc.serverevents.ServerEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,14 +41,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity {
     @Shadow protected abstract void onEffectsRemoved(Collection<MobEffectInstance> collection);
 
-    @Shadow public abstract Collection<MobEffectInstance> getActiveEffects();
+    @Shadow @Final private Map<Holder<MobEffect>, MobEffectInstance> activeEffects;
 
     @Inject(method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;canBeAffected(Lnet/minecraft/world/effect/MobEffectInstance;)Z", shift = At.Shift.AFTER), cancellable = true)
     private void LivingEntity$Effect$ADD(MobEffectInstance mobEffectInstance, Entity entity, @NotNull CallbackInfoReturnable<Boolean> cir) {
@@ -81,13 +82,37 @@ public abstract class MixinLivingEntity {
     @SuppressWarnings({"DataFlowIssue"})
     @Overwrite
     protected void triggerOnDeathMobEffects(ServerLevel serverLevel, Entity.RemovalReason removalReason) {
-        var iterator = this.getActiveEffects().iterator();
+        var iterator = this.activeEffects.entrySet().iterator();
         while (iterator.hasNext()) {
-            var effect = iterator.next();
+            var effect = iterator.next().getValue();
             if (ServerEvents.LivingEntity.Effect.REMOVE.invoker().removeEffect((LivingEntity) (Object) this, effect)) {
                 effect.onMobRemoved(serverLevel, (LivingEntity) (Object) this, removalReason);
                 iterator.remove();
             }
         }
+    }
+
+    @Inject(method = "removeAllEffects", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Maps;newHashMap(Ljava/util/Map;)Ljava/util/HashMap;"), cancellable = true)
+    private void LivingEntity$Effect$REMOVE(CallbackInfoReturnable<Boolean> cir) {
+        var iterator = this.activeEffects.entrySet().iterator();
+        var toRemove = new LinkedList<MobEffectInstance>();
+        while (iterator.hasNext()) {
+            var effect = iterator.next().getValue();
+            if (ServerEvents.LivingEntity.Effect.REMOVE.invoker().removeEffect((LivingEntity) (Object) this, effect)) {
+                iterator.remove();
+                toRemove.add(effect);
+            }
+        }
+        this.onEffectsRemoved(toRemove);
+        cir.setReturnValue(!toRemove.isEmpty());
+    }
+
+    @Inject(method = "removeEffectNoUpdate", at = @At("HEAD"), cancellable = true)
+    private void LivingEntity$Effect$REMOVE(Holder<MobEffect> holder, CallbackInfoReturnable<MobEffectInstance> cir) {
+        if (ServerEvents.LivingEntity.Effect.REMOVE.invoker().removeEffect((LivingEntity) (Object) this, this.activeEffects.get(holder))) {
+            cir.setReturnValue(this.activeEffects.remove(holder));
+            return;
+        }
+        cir.setReturnValue(null);
     }
 }
