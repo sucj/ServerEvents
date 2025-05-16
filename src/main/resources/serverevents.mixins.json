@@ -4,6 +4,7 @@
   "package": "icu.suc.serverevents.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "MixinConnection",
     "MixinLivingEntity",
     "MixinPlayerList",
     "MixinServerCommonPacketListenerImpl",

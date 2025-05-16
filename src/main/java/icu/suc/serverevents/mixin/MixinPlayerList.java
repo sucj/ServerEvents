@@ -15,8 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerList.class)
 public abstract class MixinPlayerList {
-    @Unique
-    private ServerPlayer serverPlayer;
+    @Unique private ServerPlayer serverPlayer;
 
     @Inject(method = "placeNewPlayer", at = @At("HEAD"))
     private void Player$MODIFY_JOIN_MESSAGE(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {

@@ -20,13 +20,10 @@ import java.util.Iterator;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity {
-    @Shadow
-    protected abstract void onEffectsRemoved(Collection<MobEffectInstance> collection);
+    @Shadow protected abstract void onEffectsRemoved(Collection<MobEffectInstance> collection);
 
-    @Unique
-    private Entity entity;
-    @Unique
-    private MobEffectInstance effect;
+    @Unique private Entity entity;
+    @Unique private MobEffectInstance effect;
 
     @Inject(method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;canBeAffected(Lnet/minecraft/world/effect/MobEffectInstance;)Z", shift = At.Shift.AFTER), cancellable = true)
     private void LivingEntity$Effect$ADD(MobEffectInstance mobEffectInstance, Entity entity, @NotNull CallbackInfoReturnable<Boolean> cir) {

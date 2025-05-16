@@ -14,7 +14,9 @@ import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.network.PacketListener;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import org.jetbrains.annotations.NotNull;
@@ -64,7 +66,7 @@ public final class ServerEvents implements ModInitializer {
              * @param message the join message
              * @return the new join message
              */
-            Component modifyJoinMessage(@NotNull ServerPlayer player, @Nullable Component message);
+            @NotNull Component modifyJoinMessage(@NotNull ServerPlayer player, @NotNull Component message);
         }
 
         @FunctionalInterface
@@ -76,10 +78,20 @@ public final class ServerEvents implements ModInitializer {
              * @param message the leave message
              * @return the new leave message
              */
-            Component modifyLeaveMessage(@NotNull ServerPlayer player, @Nullable Component message);
+            @NotNull Component modifyLeaveMessage(@NotNull ServerPlayer player, @NotNull Component message);
         }
 
         public static abstract class Kick {
+            /**
+             * An event that can be used to provide the player's kick reason.
+             */
+            public static final Event<ServerEvents.Player.Kick.ModifyReason> MODIFY_REASON = EventFactory.createArrayBacked(ServerEvents.Player.Kick.ModifyReason.class, callbacks -> (player, message) -> {
+                for (ServerEvents.Player.Kick.ModifyReason callback : callbacks) {
+                    message = callback.modifyKickReason(player, message);
+                }
+                return message;
+            });
+
             /**
              * An event that allows the player should be kicked.
              */
@@ -92,15 +104,17 @@ public final class ServerEvents implements ModInitializer {
                 return true;
             });
 
-            /**
-             * An event that can be used to provide the player's kick reason.
-             */
-            public static final Event<ServerEvents.Player.Kick.ModifyReason> MODIFY_REASON = EventFactory.createArrayBacked(ServerEvents.Player.Kick.ModifyReason.class, callbacks -> (player, message) -> {
-                for (ServerEvents.Player.Kick.ModifyReason callback : callbacks) {
-                    message = callback.modifyKickReason(player, message);
-                }
-                return message;
-            });
+            @FunctionalInterface
+            public interface ModifyReason {
+                /**
+                 * Modifies or provides a reason for a player kicked.
+                 *
+                 * @param player the player
+                 * @param reason the kick reason
+                 * @return the new kick reason
+                 */
+                @NotNull Component modifyKickReason(@NotNull ServerPlayer player, @NotNull Component reason);
+            }
 
             @FunctionalInterface
             public interface Allow {
@@ -111,19 +125,7 @@ public final class ServerEvents implements ModInitializer {
                  * @param reason the kick reason
                  * @return {@code true} if the player should be kicked, otherwise {@code false}
                  */
-                boolean allowKick(@NotNull ServerPlayer player, @Nullable Component reason);
-            }
-
-            @FunctionalInterface
-            public interface ModifyReason {
-                /**
-                 * Modifies or provides a reason for a player kicked.
-                 *
-                 * @param player the player
-                 * @param reason the kick reason
-                 * @return the new kick reason
-                 */
-                Component modifyKickReason(@NotNull ServerPlayer player, @Nullable Component reason);
+                boolean allowKick(@NotNull ServerPlayer player, @NotNull Component reason);
             }
         }
 
@@ -208,55 +210,113 @@ public final class ServerEvents implements ModInitializer {
     }
 
     public static abstract class Connection {
-        public static abstract class Configuration {
-            /**
-             * @see ServerConfigurationConnectionEvents#BEFORE_CONFIGURE
-             */
-            @FabricAPI public static final Event<ServerConfigurationConnectionEvents.Configure> BEFORE = ServerConfigurationConnectionEvents.BEFORE_CONFIGURE;
+        public static abstract class State {
+            public static abstract class Configuration {
+                /**
+                 * @see ServerConfigurationConnectionEvents#BEFORE_CONFIGURE
+                 */
+                @FabricAPI public static final Event<ServerConfigurationConnectionEvents.Configure> BEFORE = ServerConfigurationConnectionEvents.BEFORE_CONFIGURE;
 
-            /**
-             * @see ServerConfigurationConnectionEvents#CONFIGURE
-             */
-            @FabricAPI public static final Event<ServerConfigurationConnectionEvents.Configure> CONFIGURE = ServerConfigurationConnectionEvents.CONFIGURE;
+                /**
+                 * @see ServerConfigurationConnectionEvents#CONFIGURE
+                 */
+                @FabricAPI public static final Event<ServerConfigurationConnectionEvents.Configure> CONFIGURE = ServerConfigurationConnectionEvents.CONFIGURE;
 
-            /**
-             * @see ServerConfigurationConnectionEvents#DISCONNECT
-             */
-            @FabricAPI public static final Event<ServerConfigurationConnectionEvents.Disconnect> DISCONNECT = ServerConfigurationConnectionEvents.DISCONNECT;
+                /**
+                 * @see ServerConfigurationConnectionEvents#DISCONNECT
+                 */
+                @FabricAPI public static final Event<ServerConfigurationConnectionEvents.Disconnect> DISCONNECT = ServerConfigurationConnectionEvents.DISCONNECT;
+            }
+
+            public static abstract class Login {
+                /**
+                 * @see ServerLoginConnectionEvents#INIT
+                 */
+                @FabricAPI public static final Event<ServerLoginConnectionEvents.Init> INIT = ServerLoginConnectionEvents.INIT;
+
+                /**
+                 * @see ServerLoginConnectionEvents#QUERY_START
+                 */
+                @FabricAPI public static final Event<ServerLoginConnectionEvents.QueryStart> QUERY_START = ServerLoginConnectionEvents.QUERY_START;
+
+                /**
+                 * @see ServerLoginConnectionEvents#DISCONNECT
+                 */
+                @FabricAPI public static final Event<ServerLoginConnectionEvents.Disconnect> DISCONNECT = ServerLoginConnectionEvents.DISCONNECT;
+            }
+
+            public static abstract class Play {
+                /**
+                 * @see ServerPlayConnectionEvents#INIT
+                 */
+                @FabricAPI public static final Event<ServerPlayConnectionEvents.Init> INIT = ServerPlayConnectionEvents.INIT;
+
+                /**
+                 * @see ServerPlayConnectionEvents#JOIN
+                 */
+                @FabricAPI public static final Event<ServerPlayConnectionEvents.Join> JOIN = ServerPlayConnectionEvents.JOIN;
+
+                /**
+                 * @see ServerPlayConnectionEvents#DISCONNECT
+                 */
+                @FabricAPI public static final Event<ServerPlayConnectionEvents.Disconnect> DISCONNECT = ServerPlayConnectionEvents.DISCONNECT;
+            }
         }
 
-        public static abstract class Login {
-            /**
-             * @see ServerLoginConnectionEvents#INIT
-             */
-            @FabricAPI public static final Event<ServerLoginConnectionEvents.Init> INIT = ServerLoginConnectionEvents.INIT;
+        public static abstract class Receive {
+            public static final Event<ServerEvents.Connection.Receive.Modify> MODIFY = EventFactory.createArrayBacked(ServerEvents.Connection.Receive.Modify.class, callbacks -> (packetListener, packet) -> {
+                for (ServerEvents.Connection.Receive.Modify callback : callbacks) {
+                    packet = callback.modifyReceive(packetListener, packet);
+                }
+                return packet;
+            });
 
-            /**
-             * @see ServerLoginConnectionEvents#QUERY_START
-             */
-            @FabricAPI public static final Event<ServerLoginConnectionEvents.QueryStart> QUERY_START = ServerLoginConnectionEvents.QUERY_START;
+            public static final Event<ServerEvents.Connection.Receive.Allow> ALLOW = EventFactory.createArrayBacked(ServerEvents.Connection.Receive.Allow.class, callbacks -> (packetListener, packet) -> {
+                for (ServerEvents.Connection.Receive.Allow callback : callbacks) {
+                    if (!callback.allowReceive(packetListener, packet)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
 
-            /**
-             * @see ServerLoginConnectionEvents#DISCONNECT
-             */
-            @FabricAPI public static final Event<ServerLoginConnectionEvents.Disconnect> DISCONNECT = ServerLoginConnectionEvents.DISCONNECT;
+            @FunctionalInterface
+            public interface Modify {
+                @NotNull Packet<?> modifyReceive(@NotNull PacketListener packetListener, @NotNull Packet<?> packet);
+            }
+
+            @FunctionalInterface
+            public interface Allow {
+                boolean allowReceive(@NotNull PacketListener packetListener, @NotNull Packet<?> packet);
+            }
         }
 
-        public static abstract class Play {
-            /**
-             * @see ServerPlayConnectionEvents#INIT
-             */
-            @FabricAPI public static final Event<ServerPlayConnectionEvents.Init> INIT = ServerPlayConnectionEvents.INIT;
+        public static abstract class Send {
+            public static final Event<ServerEvents.Connection.Send.Modify> MODIFY = EventFactory.createArrayBacked(ServerEvents.Connection.Send.Modify.class, callbacks -> (packetListener, packet) -> {
+                for (ServerEvents.Connection.Send.Modify callback : callbacks) {
+                    packet = callback.modifySend(packetListener, packet);
+                }
+                return packet;
+            });
 
-            /**
-             * @see ServerPlayConnectionEvents#JOIN
-             */
-            @FabricAPI public static final Event<ServerPlayConnectionEvents.Join> JOIN = ServerPlayConnectionEvents.JOIN;
+            public static final Event<ServerEvents.Connection.Send.Allow> ALLOW = EventFactory.createArrayBacked(ServerEvents.Connection.Send.Allow.class, callbacks -> (packetListener, packet) -> {
+                for (ServerEvents.Connection.Send.Allow callback : callbacks) {
+                    if (!callback.allowSend(packetListener, packet)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
 
-            /**
-             * @see ServerPlayConnectionEvents#DISCONNECT
-             */
-            @FabricAPI public static final Event<ServerPlayConnectionEvents.Disconnect> DISCONNECT = ServerPlayConnectionEvents.DISCONNECT;
+            @FunctionalInterface
+            public interface Modify {
+                @NotNull Packet<?> modifySend(@Nullable PacketListener packetListener, @NotNull Packet<?> packet);
+            }
+
+            @FunctionalInterface
+            public interface Allow {
+                boolean allowSend(@Nullable PacketListener packetListener, @NotNull Packet<?> packet);
+            }
         }
     }
 
@@ -291,7 +351,6 @@ public final class ServerEvents implements ModInitializer {
         }
 
         public static abstract class Effect {
-
             /**
              * An event that determines whether an effect should be applied to an entity.
              */
