@@ -568,11 +568,11 @@ public final class ServerEvents implements ModInitializer {
                  * Called when an effect is about to be applied to an entity.
                  *
                  * @param affectedEntity the entity to which the effect will be applied
-                 * @param effect the effect instance to be applied, or {@code null} if no effect is specified
+                 * @param effect the effect instance to be applied.
                  * @param sourceEntity the entity causing the effect, or {@code null} if no source is specified
                  * @return {@code true} if the effect should be applied, otherwise {@code false}
                  */
-                boolean addEffect(@NotNull net.minecraft.world.entity.LivingEntity affectedEntity, @Nullable MobEffectInstance effect, @Nullable net.minecraft.world.entity.Entity sourceEntity);
+                boolean addEffect(@NotNull net.minecraft.world.entity.LivingEntity affectedEntity, @NotNull MobEffectInstance effect, @Nullable net.minecraft.world.entity.Entity sourceEntity);
             }
 
             @FunctionalInterface
@@ -581,13 +581,13 @@ public final class ServerEvents implements ModInitializer {
                  * Called to determine whether a new effect should override an existing effect.
                  *
                  * @param affectedEntity the entity with the existing effect
-                 * @param oldEffect the current effect instance, or {@code null} if no effect exists
-                 * @param newEffect the new effect instance to apply, or {@code null} if no new effect is specified
+                 * @param oldEffect the current effect instance.
+                 * @param newEffect the new effect instance to apply.
                  * @param sourceEntity the entity causing the effect, or {@code null} if no source is specified
                  * @param override whether the effect should be overridden
                  * @return {@code true} if the effect should be overridden, otherwise {@code false}
                  */
-                boolean overrideEffect(@NotNull net.minecraft.world.entity.LivingEntity affectedEntity, @Nullable MobEffectInstance oldEffect, @Nullable MobEffectInstance newEffect, @Nullable net.minecraft.world.entity.Entity sourceEntity, boolean override);
+                boolean overrideEffect(@NotNull net.minecraft.world.entity.LivingEntity affectedEntity, @NotNull MobEffectInstance oldEffect, @NotNull MobEffectInstance newEffect, @Nullable net.minecraft.world.entity.Entity sourceEntity, boolean override);
             }
 
             @FunctionalInterface
@@ -596,10 +596,10 @@ public final class ServerEvents implements ModInitializer {
                  * Called when an effect is about to be removed from an entity.
                  *
                  * @param entity the entity from which the effect will be removed
-                 * @param effect the effect instance to be removed, or {@code null} if no effect is specified
+                 * @param effect the effect instance to be removed.
                  * @return {@code true} if the effect should be removed, otherwise {@code false}
                  */
-                boolean removeEffect(@NotNull net.minecraft.world.entity.LivingEntity entity, @Nullable MobEffectInstance effect);
+                boolean removeEffect(@NotNull net.minecraft.world.entity.LivingEntity entity, @NotNull MobEffectInstance effect);
             }
         }
     }

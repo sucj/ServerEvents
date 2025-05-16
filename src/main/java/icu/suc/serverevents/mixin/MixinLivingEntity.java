@@ -23,6 +23,7 @@
  */
 package icu.suc.serverevents.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import icu.suc.serverevents.ServerEvents;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -31,8 +32,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -45,57 +46,48 @@ import java.util.Iterator;
 public abstract class MixinLivingEntity {
     @Shadow protected abstract void onEffectsRemoved(Collection<MobEffectInstance> collection);
 
-    @Unique private Entity entity;
-    @Unique private MobEffectInstance effect;
+    @Shadow public abstract Collection<MobEffectInstance> getActiveEffects();
 
     @Inject(method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;canBeAffected(Lnet/minecraft/world/effect/MobEffectInstance;)Z", shift = At.Shift.AFTER), cancellable = true)
     private void LivingEntity$Effect$ADD(MobEffectInstance mobEffectInstance, Entity entity, @NotNull CallbackInfoReturnable<Boolean> cir) {
         if (ServerEvents.LivingEntity.Effect.ADD.invoker().addEffect((LivingEntity) (Object) this, mobEffectInstance, entity)) {
-            this.entity = entity;
             return;
         }
         cir.setReturnValue(false);
     }
 
-    @SuppressWarnings({"DataFlowIssue"})
     @Redirect(method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/effect/MobEffectInstance;update(Lnet/minecraft/world/effect/MobEffectInstance;)Z"))
-    private boolean LivingEntity$Effect$OVERRIDE(@NotNull MobEffectInstance instance, MobEffectInstance mobEffectInstance) {
-        try {
-            return ServerEvents.LivingEntity.Effect.OVERRIDE.invoker().overrideEffect((LivingEntity) (Object) this, instance, mobEffectInstance, entity, instance.update(mobEffectInstance));
-        } finally {
-            entity = null;
-        }
-    }
-
-    @Redirect(method = "tickEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/effect/MobEffectInstance;tickServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;Ljava/lang/Runnable;)Z"))
-    private boolean LivingEntity$Effect$REMOVE(@NotNull MobEffectInstance instance, ServerLevel serverLevel, LivingEntity livingEntity, Runnable runnable) {
-        if (instance.tickServer(serverLevel, livingEntity, runnable)) {
-            return true;
-        }
-        effect = instance;
-        return false;
+    private boolean LivingEntity$Effect$OVERRIDE(@NotNull MobEffectInstance instance, MobEffectInstance mobEffectInstance, @Local(argsOnly = true) Entity entity) {
+        return ServerEvents.LivingEntity.Effect.OVERRIDE.invoker().overrideEffect((LivingEntity) (Object) this, instance, mobEffectInstance, entity, instance.update(mobEffectInstance));
     }
 
     @Redirect(method = "tickEffects", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V"))
-    private void LivingEntity$Effect$REMOVE(Iterator<Holder<MobEffectInstance>> instance) {
-        if (effect != null) {
-            ServerEvents.LivingEntity.Effect.REMOVE.invoker().removeEffect((LivingEntity) (Object) this, effect);
-        }
+    private void LivingEntity$Effect$REMOVE(@NotNull Iterator<Holder<MobEffectInstance>> instance, @Local MobEffectInstance mobEffectInstance) {
+        ServerEvents.LivingEntity.Effect.REMOVE.invoker().removeEffect((LivingEntity) (Object) this, mobEffectInstance);
         instance.remove();
     }
 
     @Redirect(method = "tickEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;onEffectsRemoved(Ljava/util/Collection;)V"))
-    private void LivingEntity$Effect$REMOVE(LivingEntity instance, Collection<MobEffectInstance> collection) {
-        if (effect == null) {
+    private void LivingEntity$Effect$REMOVE(LivingEntity instance, Collection<MobEffectInstance> collection, @Local MobEffectInstance mobEffectInstance) {
+        if (ServerEvents.LivingEntity.Effect.REMOVE.invoker().removeEffect(instance, mobEffectInstance)) {
             onEffectsRemoved(collection);
-            return;
         }
-        try {
-            if (ServerEvents.LivingEntity.Effect.REMOVE.invoker().removeEffect(instance, effect)) {
-                onEffectsRemoved(collection);
+    }
+
+    /**
+     * @author 557
+     * @reason LivingEntity$Effect$REMOVE
+     */
+    @SuppressWarnings({"DataFlowIssue"})
+    @Overwrite
+    protected void triggerOnDeathMobEffects(ServerLevel serverLevel, Entity.RemovalReason removalReason) {
+        var iterator = this.getActiveEffects().iterator();
+        while (iterator.hasNext()) {
+            var effect = iterator.next();
+            if (ServerEvents.LivingEntity.Effect.REMOVE.invoker().removeEffect((LivingEntity) (Object) this, effect)) {
+                effect.onMobRemoved(serverLevel, (LivingEntity) (Object) this, removalReason);
+                iterator.remove();
             }
-        } finally {
-            effect = null;
         }
     }
 }
