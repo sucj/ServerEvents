@@ -4,8 +4,12 @@
   "version": "${version}",
   "name": "ServerEvents",
   "description": "",
-  "authors": [],
-  "contact": {},
+  "authors": [
+    "557"
+  ],
+  "contact": {
+    "sources": "https://github.com/sucj/ServerEvents"
+  },
   "license": "MIT",
   "icon": "icon.png",
   "environment": "*",
