@@ -43,7 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinConnection {
     @Shadow @Nullable private volatile PacketListener packetListener;
 
-    @ModifyVariable(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/protocol/Packet;)V", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/network/PacketListener;shouldHandleMessage(Lnet/minecraft/network/protocol/Packet;)Z"), argsOnly = true)
+    @ModifyVariable(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/protocol/Packet;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketListener;shouldHandleMessage(Lnet/minecraft/network/protocol/Packet;)Z"), argsOnly = true)
     private @NotNull Packet<?> Connection$Receive$MODIFY(Packet<?> packet, @Local PacketListener packetListener) {
         return ServerEvents.Connection.Receive.MODIFY.invoker().modifyReceive(packetListener, packet);
     }
