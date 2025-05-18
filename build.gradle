@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.11.0-alpha.24'
+    id 'fabric-loom' version '1.11.0-alpha.26'
     id 'maven-publish'
 }
 
