@@ -1,0 +1,32 @@
+name: Javadoc
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs: 
+  javadoc:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with: 
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build Javadoc
+        run: ./gradlew javadoc
+
+      - name: Deploy to Github Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: 'build/docs/javadoc'
+          publish_branch: 'gh-pages'
+          keep_files: 'true'
+          destination_dir: ${{ github.ref_name }}
