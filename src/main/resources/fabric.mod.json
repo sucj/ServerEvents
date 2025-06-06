@@ -2,13 +2,14 @@
   "schemaVersion": 1,
   "id": "serverevents",
   "version": "${version}",
-  "name": "ServerEvents",
-  "description": "",
+  "name": "Server Events",
+  "description": "Enhancing server-side event handling with a Bukkit-inspired system, extending and encapsulating Fabric API events.",
   "authors": [
     "557"
   ],
   "contact": {
-    "sources": "https://github.com/sucj/ServerEvents"
+    "repo": "https://github.com/sucj/ServerEvents",
+    "issues": "https://github.com/sucj/ServerEvents/issues"
   },
   "license": "MIT",
   "icon": "icon.png",
