@@ -20,7 +20,7 @@ Here is an example of a player modifying broadcast information and giving an app
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
-import icu.suc.mc.serverevents.ServerEvents;
+import icu.suc.serverevents.ServerEvents;
 
 public class ExampleMod implements ModInitializer {
     @Override

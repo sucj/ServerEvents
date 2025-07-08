@@ -25,10 +25,10 @@ package icu.suc.serverevents.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import icu.suc.serverevents.ServerEvents;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,7 +62,7 @@ public abstract class MixinConnection {
     }
 
     @Inject(method = "sendPacket", at = @At("HEAD"), cancellable = true)
-    private void Connection$Send$ALLOW(Packet<?> packet, PacketSendListener packetSendListener, boolean bl, CallbackInfo ci) {
+    private void Connection$Send$ALLOW(Packet<?> packet, @Nullable ChannelFutureListener channelFutureListener, boolean bl, CallbackInfo ci) {
         if (ServerEvents.Connection.Send.ALLOW.invoker().allowSend(this.packetListener, packet)) {
             return;
         }

@@ -8,7 +8,8 @@
     "557"
   ],
   "contact": {
-    "repo": "https://github.com/sucj/ServerEvents",
+    "homepage": "https://modrinth.com/mod/serverevents",
+    "sources": "https://github.com/sucj/ServerEvents",
     "issues": "https://github.com/sucj/ServerEvents/issues"
   },
   "license": "MIT",
