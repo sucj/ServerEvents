@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"icu.suc.serverevents"},{"l":"icu.suc.serverevents.mixin"}];updateSearchResults();
