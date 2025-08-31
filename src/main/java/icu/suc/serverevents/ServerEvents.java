@@ -44,8 +44,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class ServerEvents {
-    public static abstract class Player {
+public final class ServerEvents {
+    private ServerEvents() {}
+
+    public static final class Player {
+        private Player() {}
+
         /**
          * @see ServerPlayerEvents#COPY_FROM
          */
@@ -118,7 +122,9 @@ public abstract class ServerEvents {
             @NotNull Component modifyLeaveMessage(@NotNull ServerPlayer player, @NotNull Component message);
         }
 
-        public static abstract class Join {
+        public static final class Join {
+            private Join() {}
+
             /**
              * An event that can be used to provide the player's join message.
              */
@@ -166,7 +172,9 @@ public abstract class ServerEvents {
             }
         }
 
-        public static abstract class Leave {
+        public static final class Leave {
+            private Leave() {}
+
             /**
              * An event that can be used to provide the player's leave message.
              */
@@ -214,7 +222,9 @@ public abstract class ServerEvents {
             }
         }
 
-        public static abstract class Kick {
+        public static final class Kick {
+            private Kick() {}
+
             /**
              * An event that can be used to provide the player's kick reason.
              */
@@ -262,8 +272,12 @@ public abstract class ServerEvents {
             }
         }
 
-        public static abstract class Interact {
-            public static abstract class Use {
+        public static final class Interact {
+            private Interact() {}
+
+            public static final class Use {
+                private Use() {}
+
                 /**
                  * @see UseBlockCallback#EVENT
                  */
@@ -280,7 +294,9 @@ public abstract class ServerEvents {
                 @FabricAPI public static final Event<UseItemCallback> ITEM = UseItemCallback.EVENT;
             }
 
-            public static abstract class Attack {
+            public static final class Attack {
+                private Attack() {}
+
                 /**
                  * @see AttackBlockCallback#EVENT
                  */
@@ -292,7 +308,9 @@ public abstract class ServerEvents {
                 @FabricAPI public static final Event<AttackEntityCallback> ENTITY = AttackEntityCallback.EVENT;
             }
 
-            public static abstract class Break {
+            public static final class Break {
+                private Break() {}
+
                 /**
                  * @see PlayerBlockBreakEvents#BEFORE
                  */
@@ -309,7 +327,9 @@ public abstract class ServerEvents {
                 @FabricAPI public static final Event<PlayerBlockBreakEvents.Canceled> CANCELED = PlayerBlockBreakEvents.CANCELED;
             }
 
-            public static abstract class Pick {
+            public static final class Pick {
+                private Pick() {}
+
                 /**
                  * @see PlayerPickItemEvents#BLOCK
                  */
@@ -323,13 +343,17 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class Item {
+    public static final class Item {
+        private Item() {}
+
         /**
          * @see DefaultItemComponentEvents#MODIFY
          */
         @FabricAPI public static final Event<DefaultItemComponentEvents.ModifyCallback> DEFAULT_COMPONENT_MODIFY = DefaultItemComponentEvents.MODIFY;
 
-        public static abstract class Enchanting {
+        public static final class Enchanting {
+            private Enchanting() {}
+
             /**
              * @see EnchantmentEvents#ALLOW_ENCHANTING
              */
@@ -342,9 +366,15 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class Connection {
-        public static abstract class State {
-            public static abstract class Configuration {
+    public static final class Connection {
+        private Connection() {}
+
+        public static final class State {
+            private State() {}
+
+            public static final class Configuration {
+                private Configuration() {}
+
                 /**
                  * @see ServerConfigurationConnectionEvents#BEFORE_CONFIGURE
                  */
@@ -361,7 +391,9 @@ public abstract class ServerEvents {
                 @FabricAPI public static final Event<ServerConfigurationConnectionEvents.Disconnect> DISCONNECT = ServerConfigurationConnectionEvents.DISCONNECT;
             }
 
-            public static abstract class Login {
+            public static final class Login {
+                private Login() {}
+
                 /**
                  * @see ServerLoginConnectionEvents#INIT
                  */
@@ -378,7 +410,9 @@ public abstract class ServerEvents {
                 @FabricAPI public static final Event<ServerLoginConnectionEvents.Disconnect> DISCONNECT = ServerLoginConnectionEvents.DISCONNECT;
             }
 
-            public static abstract class Play {
+            public static final class Play {
+                private Play() {}
+
                 /**
                  * @see ServerPlayConnectionEvents#INIT
                  */
@@ -396,7 +430,9 @@ public abstract class ServerEvents {
             }
         }
 
-        public static abstract class Receive {
+        public static final class Receive {
+            private Receive() {}
+
             /**
              * An event that can be used to modify the packet being received.
              */
@@ -444,7 +480,9 @@ public abstract class ServerEvents {
             }
         }
 
-        public static abstract class Send {
+        public static final class Send {
+            private Send() {}
+
             /**
              * An event that can be used to modify the packet being sent.
              */
@@ -493,13 +531,17 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class LivingEntity {
+    public static final class LivingEntity {
+        private LivingEntity() {}
+
         /**
          * @see ServerLivingEntityEvents#MOB_CONVERSION
          */
         @FabricAPI public static final Event<ServerLivingEntityEvents.MobConversion> MOB_CONVERSION = ServerLivingEntityEvents.MOB_CONVERSION;
 
-        public static abstract class Damage {
+        public static final class Damage {
+            private Damage() {}
+
             /**
              * @see ServerLivingEntityEvents#ALLOW_DAMAGE
              */
@@ -511,7 +553,9 @@ public abstract class ServerEvents {
             @FabricAPI public static final Event<ServerLivingEntityEvents.AfterDamage> AFTER = ServerLivingEntityEvents.AFTER_DAMAGE;
         }
 
-        public static abstract class Death {
+        public static final class Death {
+            private Death() {}
+
             /**
              * @see ServerLivingEntityEvents#ALLOW_DEATH
              */
@@ -523,7 +567,9 @@ public abstract class ServerEvents {
             @FabricAPI public static final Event<ServerLivingEntityEvents.AfterDeath> AFTER = ServerLivingEntityEvents.AFTER_DEATH;
         }
 
-        public static abstract class Effect {
+        public static final class Effect {
+            private Effect() {}
+
             /**
              * An event that determines whether an effect should be applied to an entity.
              */
@@ -600,7 +646,9 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class Chunk {
+    public static final class Chunk {
+        private Chunk() {}
+
         /**
          * @see ServerChunkEvents#CHUNK_LOAD
          */
@@ -622,7 +670,9 @@ public abstract class ServerEvents {
         @FabricAPI public static final Event<ServerChunkEvents.LevelTypeChange> LEVEL_TYPE_CHANGE = ServerChunkEvents.CHUNK_LEVEL_TYPE_CHANGE;
     }
 
-    public static abstract class Entity {
+    public static final class Entity {
+        private Entity() {}
+
         /**
          * @see ServerEntityEvents#ENTITY_LOAD
          */
@@ -643,7 +693,9 @@ public abstract class ServerEvents {
          */
         @FabricAPI public static final Event<ServerEntityCombatEvents.AfterKilledOtherEntity> AFTER_KILLED_OTHER_ENTITY = ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY;
 
-        public static abstract class Elytra {
+        public static final class Elytra {
+            private Elytra() {}
+
             /**
              * @see EntityElytraEvents#ALLOW
              */
@@ -655,7 +707,9 @@ public abstract class ServerEvents {
             @FabricAPI public static final Event<EntityElytraEvents.Custom> CUSTOM = EntityElytraEvents.CUSTOM;
         }
 
-        public static abstract class Sleep {
+        public static final class Sleep {
+            private Sleep() {}
+
             /**
              * @see EntitySleepEvents#ALLOW_SLEEPING
              */
@@ -712,7 +766,9 @@ public abstract class ServerEvents {
             @FabricAPI public static final Event<EntitySleepEvents.ModifyWakeUpPosition> MODIFY_WAKE_UP_POSITION = EntitySleepEvents.MODIFY_WAKE_UP_POSITION;
         }
 
-        public static abstract class Tracking {
+        public static final class Tracking {
+            private Tracking() {}
+
             /**
              * @see EntityTrackingEvents#START_TRACKING
              */
@@ -725,7 +781,9 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class Lifecycle {
+    public static final class Lifecycle {
+        private Lifecycle() {}
+
         /**
          * @see ServerLifecycleEvents#SERVER_STARTING
          */
@@ -751,13 +809,17 @@ public abstract class ServerEvents {
          */
         @FabricAPI public static final Event<CommonLifecycleEvents.TagsLoaded> TAGS_LOADED = CommonLifecycleEvents.TAGS_LOADED;
 
-        public static abstract class DataPack {
+        public static final class DataPack {
+            private DataPack() {}
+
             /**
              * @see ServerLifecycleEvents#SYNC_DATA_PACK_CONTENTS
              */
             @FabricAPI public static final Event<ServerLifecycleEvents.SyncDataPackContents> SYNC_CONTENTS = ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS;
 
-            public static abstract class Reload {
+            public static final class Reload {
+                private Reload() {}
+
                 /**
                  * @see ServerLifecycleEvents#START_DATA_PACK_RELOAD
                  */
@@ -770,7 +832,9 @@ public abstract class ServerEvents {
             }
         }
 
-        public static abstract class Save {
+        public static final class Save {
+            private Save() {}
+
             /**
              * @see ServerLifecycleEvents#BEFORE_SAVE
              */
@@ -783,8 +847,12 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class Tick {
-        public static abstract class Server {
+    public static final class Tick {
+        private Tick() {}
+
+        public static final class Server {
+            private Server() {}
+
             /**
              * @see ServerTickEvents#START_SERVER_TICK
              */
@@ -796,7 +864,9 @@ public abstract class ServerEvents {
             @FabricAPI public static final Event<ServerTickEvents.EndTick> END = ServerTickEvents.END_SERVER_TICK;
         }
 
-        public static abstract class World {
+        public static final class World {
+            private World() {}
+
             /**
              * @see ServerTickEvents#START_WORLD_TICK
              */
@@ -809,8 +879,12 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class Message {
-        public static abstract class Chat {
+    public static final class Message {
+        private Message() {}
+
+        public static final class Chat {
+            private Chat() {}
+
             /**
              * @see ServerMessageEvents#ALLOW_CHAT_MESSAGE
              */
@@ -822,7 +896,9 @@ public abstract class ServerEvents {
             @FabricAPI public static final Event<ServerMessageEvents.ChatMessage> ON = ServerMessageEvents.CHAT_MESSAGE;
         }
 
-        public static abstract class Game {
+        public static final class Game {
+            private Game() {}
+
             /**
              * @see ServerMessageEvents#ALLOW_GAME_MESSAGE
              */
@@ -834,7 +910,9 @@ public abstract class ServerEvents {
             @FabricAPI public static final Event<ServerMessageEvents.GameMessage> ON = ServerMessageEvents.GAME_MESSAGE;
         }
 
-        public static abstract class Command {
+        public static final class Command {
+            private Command() {}
+
             /**
              * @see ServerMessageEvents#ALLOW_COMMAND_MESSAGE
              */
@@ -847,7 +925,9 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class World {
+    public static final class World {
+        private World() {}
+
         /**
          * @see ServerWorldEvents#LOAD
          */
@@ -858,7 +938,9 @@ public abstract class ServerEvents {
          */
         @FabricAPI public static final Event<ServerWorldEvents.Unload> UNLOAD = ServerWorldEvents.UNLOAD;
 
-        public static abstract class Change {
+        public static final class Change {
+            private Change() {}
+
             /**
              * @see ServerEntityWorldChangeEvents#AFTER_ENTITY_CHANGE_WORLD
              */
@@ -871,7 +953,9 @@ public abstract class ServerEvents {
         }
     }
 
-    public static abstract class BlockEntity {
+    public static final class BlockEntity {
+        private BlockEntity() {}
+
         /**
          * @see ServerBlockEntityEvents#BLOCK_ENTITY_LOAD
          */
@@ -883,7 +967,9 @@ public abstract class ServerEvents {
         @FabricAPI public static final Event<ServerBlockEntityEvents.Unload> UNLOAD = ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD;
     }
 
-    public static abstract class LootTable {
+    public static final class LootTable {
+        private LootTable() {}
+
         /**
          * @see LootTableEvents#REPLACE
          */
