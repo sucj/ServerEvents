@@ -45,7 +45,39 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ServerEvents {
-    private ServerEvents() {}
+    private ServerEvents() {
+    }
+
+    /**
+     * Registers the given listener to all events it provides.
+     *
+     * <p>Each listener must implement the type parameter {@code T} of the corresponding event.
+     * For details on registration and type requirements, see
+     * {@link #register(Event, Listener)}.</p>
+     *
+     * @param listener the listener to register to its events
+     */
+    public static void register(@NotNull Listener listener) {
+        for (var event : listener.events()) {
+            register(event, listener);
+        }
+    }
+
+    /**
+     * Registers a listener to the given event.
+     *
+     * <p><b>Important:</b> The {@code listener} must implement the interface or class
+     * represented by {@code T}, i.e., the type parameter of {@code event}. Passing a listener
+     * that does not implement {@code T} will lead to a {@link ClassCastException} at runtime.</p>
+     *
+     * @param event the event to register to
+     * @param listener the listener that must implement {@code T}
+     * @param <T> the type of listener the event accepts
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> void register(@NotNull Event<T> event, @NotNull Listener listener) {
+        event.register(listener.phase(), (T) listener);
+    }
 
     public static final class Player {
         private Player() {}
