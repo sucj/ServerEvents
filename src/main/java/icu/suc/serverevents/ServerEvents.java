@@ -121,6 +121,18 @@ public final class ServerEvents {
         });
 
         /**
+         * An event that allows the player drop the selected item.
+         */
+        public static final Event<ServerEvents.Player.AllowDropSelectedItem> ALLOW_DROP_SELECTED_ITEM = EventFactory.createArrayBacked(ServerEvents.Player.AllowDropSelectedItem.class, callbacks -> (player, all) -> {
+            for (ServerEvents.Player.AllowDropSelectedItem callback : callbacks) {
+                if (!callback.allowDropSelectedItem(player, all)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        /**
          * @deprecated Moved to {@link ServerEvents.Player.Join.ModifyMessage}.
          * @since 1.0.5
          */
@@ -152,6 +164,18 @@ public final class ServerEvents {
              * @return the new leave message
              */
             @NotNull Component modifyLeaveMessage(@NotNull ServerPlayer player, @NotNull Component message);
+        }
+
+        @FunctionalInterface
+        public interface AllowDropSelectedItem {
+            /**
+             * Called when the player drop the selected item.
+             *
+             * @param player the player
+             * @param all whether to drop all items
+             * @return {@code true} if should be allowed, otherwise {@code false}
+             */
+            boolean allowDropSelectedItem(@NotNull ServerPlayer player, boolean all);
         }
 
         public static final class Join {
