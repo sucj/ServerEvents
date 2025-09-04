@@ -39,45 +39,57 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static net.fabricmc.fabric.api.event.Event.DEFAULT_PHASE;
 
 public final class ServerEvents {
     private ServerEvents() {
     }
 
     /**
-     * Registers the given listener to all events it provides.
+     * Registers the given listener to one or more events using the default phase.
      *
-     * <p>Each listener must implement the type parameter {@code T} of the corresponding event.
-     * For details on registration and type requirements, see
-     * {@link #register(Event, Listener)}.</p>
+     * <p>The {@code listener} object must implement the interface or class represented
+     * by each {@code event}'s type parameter {@code T}. Passing an incompatible object
+     * will throw a {@link ClassCastException} at runtime.</p>
      *
-     * @param listener the listener to register to its events
+     * <p>This variant uses {@link net.fabricmc.fabric.api.event.Event#DEFAULT_PHASE} as the
+     * registration phase.</p>
+     *
+     * @param listener the object to register; must implement each event's type parameter {@code T}
+     * @param events the events to register to
+     * @param <T> the type of the event listener; each {@code event} expects this type
      */
-    public static void register(@NotNull Listener listener) {
-        for (var event : listener.events()) {
-            register(event, listener);
-        }
+    @SafeVarargs
+    public static <T> void register(@NotNull Object listener, Event<? extends T> @NotNull ... events) {
+        register(DEFAULT_PHASE, listener, events);
     }
 
     /**
-     * Registers a listener to the given event.
+     * Registers the given listener to one or more events with a specified phase.
      *
-     * <p><b>Important:</b> The {@code listener} must implement the interface or class
-     * represented by {@code T}, i.e., the type parameter of {@code event}. Passing a listener
-     * that does not implement {@code T} will lead to a {@link ClassCastException} at runtime.</p>
+     * <p>The {@code listener} object must implement the interface or class represented
+     * by each {@code event}'s type parameter {@code T}. Passing an incompatible object
+     * will throw a {@link ClassCastException} at runtime.</p>
      *
-     * @param event the event to register to
-     * @param listener the listener that must implement {@code T}
-     * @param <T> the type of listener the event accepts
+     * @param phase the registration phase to use
+     * @param listener the object to register; must implement each event's type parameter {@code T}
+     * @param events the events to register to
+     * @param <T> the type of the event listener; each {@code event} expects this type
      */
     @SuppressWarnings("unchecked")
-    public static <T> void register(@NotNull Event<T> event, @NotNull Listener listener) {
-        event.register(listener.phase(), (T) listener);
+    @SafeVarargs
+    public static <T> void register(@NotNull ResourceLocation phase, @NotNull Object listener, Event<? extends T> @NotNull ... events) {
+        for (Event<? extends T> event : events) {
+            ((Event<T>) event).register(phase, (T) listener);
+        }
     }
+
 
     public static final class Player {
         private Player() {}
