@@ -39,7 +39,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import org.jetbrains.annotations.NotNull;
@@ -84,7 +84,7 @@ public final class ServerEvents {
      */
     @SuppressWarnings("unchecked")
     @SafeVarargs
-    public static <T> void register(@NotNull ResourceLocation phase, @NotNull Object listener, Event<? extends T> @NotNull ... events) {
+    public static <T> void register(@NotNull Identifier phase, @NotNull Object listener, Event<? extends T> @NotNull ... events) {
         for (Event<? extends T> event : events) {
             ((Event<T>) event).register(phase, (T) listener);
         }
@@ -798,10 +798,10 @@ public final class ServerEvents {
              */
             @FabricAPI public static final Event<EntitySleepEvents.AllowBed> ALLOW_BED = EntitySleepEvents.ALLOW_BED;
 
-            /**
-             * @see EntitySleepEvents#ALLOW_SLEEP_TIME
-             */
-            @FabricAPI public static final Event<EntitySleepEvents.AllowSleepTime> ALLOW_SLEEP_TIME = EntitySleepEvents.ALLOW_SLEEP_TIME;
+//            /**
+//             * @see EntitySleepEvents#ALLOW_SLEEP_TIME
+//             */
+//            @FabricAPI public static final Event<EntitySleepEvents.AllowSleepTime> ALLOW_SLEEP_TIME = EntitySleepEvents.ALLOW_SLEEP_TIME;
 
             /**
              * @see EntitySleepEvents#ALLOW_NEARBY_MONSTERS

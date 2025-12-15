@@ -51,11 +51,10 @@ public abstract class MixinServerGamePacketListenerImpl {
         }
     }
 
-    @Redirect(method = "handlePlayerAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;drop(Z)Z"))
-    private boolean Player$ALLOW_DROP_SELECTED_ITEM(ServerPlayer player, boolean all) {
+    @Redirect(method = "handlePlayerAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;drop(Z)V"))
+    private void Player$ALLOW_DROP_SELECTED_ITEM(ServerPlayer player, boolean all) {
         if (ServerEvents.Player.ALLOW_DROP_SELECTED_ITEM.invoker().allowDropSelectedItem(player, all)) {
-            return player.drop(all);
+            player.drop(all);
         }
-        return false;
     }
 }
