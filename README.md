@@ -2,7 +2,7 @@
 
 **ServerEvents** is a support library for Fabric server development, designed to enhance the Fabric API's limited event system. It offers a Bukkit-like event framework while adhering to Fabric's minimalist philosophy.
 
-- [Javadoc](https://sucj.github.io/ServerEvents/2025.6.1/)
+- [Javadoc](https://sucj.github.io/ServerEvents/2025.12.1/)
 - [Modrinth](https://modrinth.com/mod/serverevents)
 
 The mod doesn't wrap `CommandRegistrationCallback` and `DynamicRegistrySetupCallback` from Fabric API.
