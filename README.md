@@ -35,4 +35,4 @@ public class ExampleMod implements ModInitializer {
 
 ## License
 
-This project is licensed under the [MIT License](/LICENSE.txt) © 2025 sucj.
+This project is licensed under the [MIT License](/LICENSE) © 2025 sucj.
